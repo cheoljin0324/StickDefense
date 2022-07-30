@@ -1,4 +1,5 @@
 using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class User
     public int UserLevel;
     public float MoneyUpLevel;
     public int MaxMoneyLevel;
+    public int point;
+    public int waveStack;
     public List<bool> UseBool;
 }
 
@@ -37,9 +40,29 @@ public class GameManager : MonoSingletone<GameManager>
 
     public GameState useState = GameState.Idle;
 
+
+    string path;
+    string Json;
+    public void Save()
+    {
+        Json  = JsonUtility.ToJson(userData);
+        File.WriteAllText(path, Json);
+    }
+
+    public void SaveLoad()
+    {
+        if (File.Exists(path))
+        {
+            Json = File.ReadAllText(path);
+            userData = JsonUtility.FromJson<User>(Json);
+        }
+    }
+
     private void Start()
     {
- 
+        Time.timeScale = 0;
+        path = Application.dataPath + "/PlayerData.txt";
+        SaveLoad();
         _uiManager.UISet(PlayerCard);
         WaveReady();
         nowWave = 0;
@@ -53,12 +76,14 @@ public class GameManager : MonoSingletone<GameManager>
 
     public void WaveStart()
     {
+        UiManager.Insatnce.UpdateWave();
         useState = GameState.WaveStart;
         WaveGaming();
     }
 
     public void WaveGaming()
     {
+        Save(); 
         StartCoroutine(UserSet.SetMoney());
         useState = GameState.WaveGaming;
         StartCoroutine(waveManager.element());
@@ -67,8 +92,9 @@ public class GameManager : MonoSingletone<GameManager>
     public void WaveEnd()
     {
         useState = GameState.WaveEnd;
-        nowWave++;
+        userData.waveStack++;
         waveManager.WaveDest();
+        Save(); 
 
     }
 
@@ -88,4 +114,5 @@ public struct PlayerCharData
     public int nedMoney;
     public GameObject UsePrefab;
     public Sprite UseSprite;
+    public int UsePoint;
 }

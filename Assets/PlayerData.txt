@@ -1,0 +1,1 @@
+{"userName":"","UserLevel":0,"MoneyUpLevel":1.0,"MaxMoneyLevel":1,"point":0,"waveStack":0,"UseBool":[false,true,false]}

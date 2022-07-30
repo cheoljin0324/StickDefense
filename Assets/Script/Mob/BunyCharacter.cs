@@ -2,21 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterControl_Normal : MonoBehaviour
+public class BunyCharacter : MobData
 {
     public Transform EnemyTransform;
-    public enum PlayerState {Idle, Move, Battle , Attack, Die, Skill}
-    PlayerState playerState = PlayerState.Idle;
-    private float speed = 1f;
     public GameObject AttackTarget;
-    MobData myhp;
-    public float AttackSpd = 1f;
-    public int AttackAge = 3;
+    public int playerHp = 10;
+    public int attackAge = 10;
+    public float attackSpd = 4.0f;
+    public float Spd = 10;
+
 
     private void Awake()
     {
+        HP = playerHp;
+        AttackAge = attackAge;
+        AttackSpd = attackSpd;
+        speed = Spd;
         EnemyTransform = GameObject.Find("EnemySpawn").GetComponent<Transform>();
-        myhp = GetComponent<MobData>();
     }
 
     void Start()
@@ -30,10 +32,17 @@ public class CharacterControl_Normal : MonoBehaviour
         CheckState();
     }
 
+    private void OnEnable()
+    {
+        playerState = PlayerState.Move;
+    }
+
+
+
 
     protected void Move()
     {
-        transform.position = Vector3.MoveTowards(gameObject.transform.position, EnemyTransform.position, speed/100);
+        transform.position = Vector3.MoveTowards(gameObject.transform.position, EnemyTransform.position, speed / 100);
     }
     void Battle()
     {
@@ -46,13 +55,13 @@ public class CharacterControl_Normal : MonoBehaviour
         else
         {
             StartCoroutine("Attack");
-        }  
+        }
     }
 
-    public virtual IEnumerator Attack()
+    protected virtual IEnumerator Attack()
     {
         playerState = PlayerState.Attack;
-        yield return new WaitForSeconds(5f-AttackSpd);
+        yield return new WaitForSeconds(5f - AttackSpd);
         if (AttackTarget == null)
         {
             playerState = PlayerState.Move;
@@ -60,7 +69,7 @@ public class CharacterControl_Normal : MonoBehaviour
             AttackTarget = null;
             StopCoroutine("Attack");
         }
-        else if (AttackTarget.GetComponent<MobData>().hp < 1)
+        else if (AttackTarget.GetComponent<MobData>().HP < 1)
         {
             playerState = PlayerState.Move;
             AttackTarget = null;
@@ -69,7 +78,7 @@ public class CharacterControl_Normal : MonoBehaviour
         }
         if (AttackTarget != null)
         {
-            AttackTarget.GetComponent<MobData>().hp -= 3;
+            AttackTarget.GetComponent<MobData>().OnDamaging(AttackAge);
 
             for (int i = 0; i < 3; i++)
             {
@@ -82,8 +91,8 @@ public class CharacterControl_Normal : MonoBehaviour
 
             playerState = PlayerState.Battle;
         }
-        
-       
+
+
     }
 
     protected void Die()
@@ -94,7 +103,7 @@ public class CharacterControl_Normal : MonoBehaviour
 
     protected void CheckState()
     {
-        if (myhp.hp < 1)
+        if (HP < 1)
         {
             playerState = PlayerState.Die;
         }

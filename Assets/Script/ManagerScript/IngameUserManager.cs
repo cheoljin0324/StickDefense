@@ -24,6 +24,7 @@ public class IngameUserManager : MonoBehaviour
         {
             yield return new WaitForSeconds(WaitTime);
             userMoney++;
+            UiManager.Insatnce.EnergyTextUpdate(userMoney);
             if(GameManager.Insatnce.useState != GameManager.GameState.WaveGaming)
             {
                 StopCoroutine(SetMoney());
